@@ -105,10 +105,18 @@ export default function ReferralForm({ HandleSubmitted }: { HandleSubmitted: () 
         idref: idref,
       };
 
-      await ConversionReferral({ sanitizedDataToConversion });
+      const result = await ConversionReferral({ sanitizedDataToConversion });
+
+      if (result.error) {
+        console.error('Erro na API:', result.message);
+        throw new Error(result.message);
+      }
+
       HandleSubmitted();
     } catch (error) {
       console.error('Erro ao processar o formulário:', error);
+      // Aqui você pode adicionar um toast ou outro feedback visual para o usuário
+      alert(error instanceof Error ? error.message : 'Erro ao processar o formulário');
     }
   };
 
