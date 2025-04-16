@@ -1,20 +1,31 @@
-version: "3"
-
-
-
 services:
-
-  app:
-
+  indique:
     build:
-
       context: .
-
       dockerfile: Dockerfile
-
+    container_name: indique
+    environment:
+      - NODE_ENV=production
+      - API_ACCESS_KEY=${API_ACCESS_KEY}
+      - API_BASE_URL_INDIQUE=${API_BASE_URL_INDIQUE}
+      - GF_SERVER_ROOT_URL=https://outdev.gbonline.com.br/indique
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_COOKIE_SECURE=false
+      - GF_SECURITY_STRICT_TRANSPORT_SECURITY=false
     ports:
-
-      - "3459:3000"
-
+      - '3460:3000'
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=traefik-proxy_traefik-network'
+      - 'traefik.http.routers.indique.rule=Host(`outdev.gbonline.com.br`) && PathPrefix(`/indique`)'
+      - 'traefik.http.routers.indique.entrypoints=web,websecure'
+      - 'traefik.http.routers.indique.tls=true'
+      - 'traefik.http.routers.indique.tls.certresolver=myresolver'
+      - 'traefik.http.services.indique.loadbalancer.server.port=3000'
+    networks:
+      - traefik-proxy_traefik-network
     restart: unless-stopped
 
+networks:
+  traefik-proxy_traefik-network:
+    external: true
